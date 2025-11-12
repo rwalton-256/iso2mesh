@@ -38,7 +38,7 @@ function [mask, weight] = mesh2mask(node, face, xi, yi, hf, varargin)
 % -- this function is part of iso2mesh toolbox (http://iso2mesh.sf.net)
 %
 
-opt = varargin2struct(varargin{:})
+opt = varargin2struct(varargin{:});
 
 if (nargin == 3 && length(xi) == 1 && xi > 0)
     mn = min(node);
@@ -65,9 +65,9 @@ else
     clf(hf);
 end
 
-if(jsonopt('edge', 0, opt))
+if (jsonopt('edge', 0, opt))
     try
-        set(gcf, 'GraphicsSmoothing', 'off')
+        set(gcf, 'GraphicsSmoothing', 'off');
     catch
     end
 end

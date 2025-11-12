@@ -17,11 +17,15 @@ function newloop = maxloop(curveloop)
 
 newloop = curveloop;
 
+if (~isnan(curveloop(end)))
+    curveloop(end + 1) = nan;
+end
+
 loopend = find(isnan(curveloop));
-if(length(loopend) > 1)
+if (length(loopend) > 1)
     seglen = [loopend(1), diff(loopend)];
     [maxlen, maxloc] = max(seglen);
     loopend = [0 loopend];
-    newloop = curveloop((loopend(maxloc)+1):(loopend(maxloc+1)-maxloc));
+    newloop = curveloop((loopend(maxloc) + 1):(loopend(maxloc + 1) - maxloc));
 end
 newloop(isnan(newloop)) = [];
