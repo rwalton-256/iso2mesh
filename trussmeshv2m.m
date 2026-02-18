@@ -16,7 +16,7 @@ if max(vol(:)) > 63, error('trussmeshv2m supports at most 64 labels (0-63)'); en
 % Parse options with defaults
 defaults = struct('vertexspacing', 4, 'trussfactor', 1.3, 'springconstant', 0.1, ...
                   'compressionfactor', 1.3, 'terminatecriterion', 0.001, 'maxiter', 100000, ...
-                  'debug', 1, 'surf_tet_qual_thresh', 0.6);
+                  'debug', 1, 'surf_tet_qual_thresh', 0.6, 'retriangulateiterations', 50);
 if nargin < 2, opt = struct(); end
 if ~isstruct(opt), opt = struct('vertexspacing', opt); end
 for f = fieldnames(defaults)', if ~isfield(opt, f{1}), opt.(f{1}) = defaults.(f{1}); end, end
@@ -31,9 +31,9 @@ fid = fopen(inputfile, 'wb'); fwrite(fid, permute(vol, [3,2,1]), 'uint8'); fclos
 fid = fopen(headerfile, 'w'); fprintf(fid, '%d %d %d\n', size(vol, 1), size(vol, 2), size(vol, 3)); fclose(fid);
 
 % Run mesher
-cmd = sprintf('"%s" --input "%s" --header "%s" --output "%s" --spacing %f --truss %f --spring %f --compression %f --epsilon %f --iterations %d', ...
+cmd = sprintf('"%s" --input "%s" --header "%s" --output "%s" --spacing %f --truss %f --spring %f --compression %f --epsilon %f --maxiterations %d --retriangulateiterations %d', ...
     'trussmesh_cli', inputfile, headerfile, outputfile, ...
-    opt.vertexspacing, opt.trussfactor, opt.springconstant, opt.compressionfactor, opt.terminatecriterion, opt.maxiter);
+    opt.vertexspacing, opt.trussfactor, opt.springconstant, opt.compressionfactor, opt.terminatecriterion, opt.maxiter, opt.retriangulateiterations);
 fprintf(1, "Trussmesh Command: %s\n", cmd);
 
 if isfield(opt, 'log_file') && ~isempty(opt.log_file)
@@ -181,9 +181,7 @@ function node = load_trussmesh_binary(filename)
     fid = fopen(filename, 'rb');
     nd = fread(fid, 1, 'uint32');
     npoints = fread(fid, 1, 'uint64');
-    fread(fid, 1, 'uint64');  % skip nboundary (unused)
     node = reshape(fread(fid, npoints * nd, 'float32'), [nd, npoints])';
-    fread(fid, '*uint64');  % skip boundary indices (unused)
     fclose(fid);
 end
 

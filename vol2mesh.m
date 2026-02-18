@@ -54,6 +54,17 @@ if (nargin >= 8)
         [node, elem, face] = cgalv2m(vol, opt, maxvol);
         return
     end
+    if (strcmp(method, 'trussmesh'))
+        vol = img(ix, iy, iz);
+        if (length(unique(vol(:))) > 64 && dofix == 1)
+            error(['it appears that you are processing a ' ...
+                   'grayscale image. Trussmesher ' ...
+                   'does not support grayscale images.']);
+        end
+        
+        [node, elem, face] = trussmeshv2m(uint8(vol),opt);
+        return
+    end
 end
 
 % first, convert the binary volume into isosurfaces
